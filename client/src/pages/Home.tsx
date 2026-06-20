@@ -201,9 +201,13 @@ export default function Home() {
       </footer>
 
       <BottomNav
+        cartCount={cart.length}
         active={panel}
-        onToggleVision={toggleVision}
-        onToggleAI={toggleAI}
+        onVision={toggleVision}
+        onAI={toggleAI}
+        onAccount={() => setAccount(true)}
+        onMenu={() => setMenu(true)}
+        onCart={() => setCartOpen(true)}
       />
 
       <VisionDrawer open={panel === "vision"} onClose={closePanel} />
