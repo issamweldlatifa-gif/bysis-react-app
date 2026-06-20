@@ -16,7 +16,7 @@ type Props = {
 
 export default function BottomNav({ cartCount, active, onVision, onAI, onAccount, onMenu, onCart }: Props) {
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-[60] mx-auto max-w-[480px]">
+    <nav className="fixed bottom-0 inset-x-0 z-[7000] mx-auto max-w-[480px]">
       <div className="m-3 rounded-[26px] bg-white/95 backdrop-blur-xl border border-bysis-line soft-shadow flex items-center justify-around h-[64px] px-2">
         <NavBtn label="Vision" onClick={onVision} active={active === "vision"}>
           <Eye className="h-[22px] w-[22px]" />

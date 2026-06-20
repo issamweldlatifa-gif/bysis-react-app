@@ -24,7 +24,7 @@ function FullPanel({
     <section
       aria-label={label}
       aria-hidden={!open}
-      className="fixed inset-0 z-[5000] mx-auto w-full max-w-[480px] bg-white text-bysis-ink flex flex-col"
+      className="fixed inset-0 z-[4000] mx-auto w-full max-w-[480px] bg-white text-bysis-ink flex flex-col"
       style={{
         transform: open ? "translateY(0)" : "translateY(105%)",
         opacity: open ? 1 : 0.98,
@@ -112,7 +112,7 @@ export function VisionDrawer({
 
       <div
         className="flex-1 overflow-y-auto no-scrollbar"
-        style={{ padding: "28px 20px 120px" }}
+        style={{ padding: "28px 20px 130px" }}
       >
         {/* hero card */}
         <div
@@ -282,7 +282,7 @@ export function AIDrawer({
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto no-scrollbar"
-        style={{ padding: "18px 0 140px" }}
+        style={{ padding: "18px 0 180px" }}
       >
         {/* welcome paragraph (always shown first, exactly like reference) */}
         <p
@@ -326,10 +326,16 @@ export function AIDrawer({
         )}
       </div>
 
-      {/* composer pinned to bottom of the panel */}
+      {/* composer fixed above the floating bottom nav (nav z=7000, composer z=6500, drawer z=4000) */}
       <div
-        className="shrink-0"
+        className="fixed inset-x-0 mx-auto w-full max-w-[480px]"
         style={{
+          bottom: kb ? 0 : 82,
+          zIndex: 6500,
+          opacity: open ? 1 : 0,
+          visibility: open ? "visible" : "hidden",
+          pointerEvents: open ? "auto" : "none",
+          transition: "bottom 200ms ease, opacity 180ms ease",
           background:
             "linear-gradient(180deg, rgba(255,255,255,0) 0, rgba(255,255,255,.96) 34%, #fff 100%)",
         }}
