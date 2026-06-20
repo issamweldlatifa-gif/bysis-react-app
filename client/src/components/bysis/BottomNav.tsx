@@ -1,6 +1,7 @@
 // bysis bottom navigation — 5 actions: Vision, Compte, Panier, Menu, Bysis AI
 // Bottom nav STAYS visible while AI/Vision drawers are open; active tab is highlighted.
 // Vision & AI buttons toggle their drawer (same button opens/closes).
+import { useEffect } from "react";
 import { Eye, User, ShoppingBag, Menu } from "lucide-react";
 import { LOGOS } from "@/data";
 
@@ -15,6 +16,19 @@ type Props = {
 };
 
 export default function BottomNav({ cartCount, active, onVision, onAI, onAccount, onMenu, onCart }: Props) {
+  // Sync active state to body classes for CSS to respond
+  useEffect(() => {
+    if (active === "ai") {
+      document.body.classList.add("ai-open");
+      document.body.classList.remove("vision-open");
+    } else if (active === "vision") {
+      document.body.classList.add("vision-open");
+      document.body.classList.remove("ai-open");
+    } else {
+      document.body.classList.remove("ai-open", "vision-open");
+    }
+  }, [active]);
+
   return (
     <nav className="fixed bottom-0 inset-x-0 z-[7000] mx-auto max-w-[480px]">
       <div className="m-3 rounded-[26px] bg-white/95 backdrop-blur-xl border border-bysis-line soft-shadow flex items-center justify-around h-[64px] px-2">
