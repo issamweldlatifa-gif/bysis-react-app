@@ -1,82 +1,87 @@
-// bysis bottom navigation — 5 actions: Vision, Compte, Panier, Menu, Bysis AI
-// Bottom nav STAYS visible while AI/Vision drawers are open; active tab is highlighted.
-// Vision & AI buttons toggle their drawer (same button opens/closes).
-import { Eye, User, ShoppingBag, Menu } from "lucide-react";
-import { LOGOS } from "@/data";
+import { useEffect } from 'react';
 
-type Props = {
-  cartCount: number;
-  active: "vision" | "ai" | null;
-  onVision: () => void;
-  onAI: () => void;
-  onAccount: () => void;
-  onMenu: () => void;
-  onCart: () => void;
-};
+interface BottomNavProps {
+  active: 'vision' | 'ai' | null;
+  onToggleVision: () => void;
+  onToggleAI: () => void;
+}
 
-export default function BottomNav({ cartCount, active, onVision, onAI, onAccount, onMenu, onCart }: Props) {
+export default function BottomNav({ active, onToggleVision, onToggleAI }: BottomNavProps) {
+  // Sync active state to body classes for CSS to respond
+  useEffect(() => {
+    if (active === 'ai') {
+      document.body.classList.add('ai-open');
+      document.body.classList.remove('vision-open');
+    } else if (active === 'vision') {
+      document.body.classList.add('vision-open');
+      document.body.classList.remove('ai-open');
+    } else {
+      document.body.classList.remove('ai-open', 'vision-open');
+    }
+  }, [active]);
+
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-[7000] mx-auto max-w-[480px]">
-      <div className="m-3 rounded-[26px] bg-white/95 backdrop-blur-xl border border-bysis-line soft-shadow flex items-center justify-around h-[64px] px-2">
-        <NavBtn label="Vision" onClick={onVision} active={active === "vision"}>
-          <Eye className="h-[22px] w-[22px]" />
-        </NavBtn>
-        <NavBtn label="Compte" onClick={onAccount}>
-          <User className="h-[22px] w-[22px]" />
-        </NavBtn>
-        <NavBtn label="Panier" onClick={onCart} badge={cartCount}>
-          <ShoppingBag className="h-[22px] w-[22px]" />
-        </NavBtn>
-        <NavBtn label="Menu" onClick={onMenu}>
-          <Menu className="h-[22px] w-[22px]" />
-        </NavBtn>
-        <button
-          onClick={onAI}
-          aria-label="Bysis AI"
-          aria-pressed={active === "ai"}
-          className={`relative -mt-7 h-[54px] w-[54px] rounded-full grid place-items-center soft-shadow press transition-all duration-200 ${
-            active === "ai" ? "bg-bysis-ink ring-4 ring-bysis-blue/30 scale-105" : "bg-bysis-blue"
-          }`}
+    <nav className="bottom-nav" aria-label="شريط التنقل السفلي">
+      <div className="nav-rail" aria-label="أيقونات التنقل الأساسية">
+        <svg className="rail-outline" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 0.8 H97.5 C99.2 0.8 100 3.8 100 10.5 V76 C100 91 107 99 124 99" />
+        </svg>
+        
+        <button 
+          className={`nav-tab ${active === 'vision' ? 'selected vision-tab' : 'vision-tab'}`} 
+          aria-label="Vision" 
+          onClick={onToggleVision}
         >
-          <img src={LOGOS.ai} alt="" className="h-[30px] w-[30px] object-contain" />
+          <span className="vision-nav-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M12 5C7 5 2.73 8.11 1 12.5c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12c-2.49 0-4.5-2.01-4.5-4.5S9.51 8 12 8s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z" />
+            </svg>
+          </span>
+        </button>
+
+        <button 
+          className="nav-tab" 
+          aria-label="الحساب"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+          </svg>
+        </button>
+
+        <button 
+          className="nav-tab" 
+          aria-label="السلة"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M7 4V2m10 2v2M3 6h18l-1.5 12H4.5L3 6zm4 0v12m6-12v12" />
+          </svg>
+          <span className="cart-badge">0</span>
+        </button>
+
+        <button 
+          className="nav-tab" 
+          aria-label="القائمة"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M3 6h18M3 12h18M3 18h18" />
+          </svg>
+        </button>
+      </div>
+
+      <div className="ai-dock">
+        <button 
+          className={`nav-tab ai-tab ${active === 'ai' ? 'selected' : ''}`} 
+          aria-label="Bysis AI" 
+          onClick={onToggleAI}
+        >
+          <span className="ai-mark ai-mark-image" aria-hidden="true">
+            <img 
+              src="data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23176fb7'/%3E%3C/svg%3E" 
+              alt="" 
+            />
+          </span>
         </button>
       </div>
     </nav>
-  );
-}
-
-function NavBtn({
-  label,
-  children,
-  onClick,
-  badge,
-  active,
-}: {
-  label: string;
-  children: React.ReactNode;
-  onClick: () => void;
-  badge?: number;
-  active?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      aria-label={label}
-      aria-pressed={active}
-      className={`relative flex flex-col items-center gap-0.5 press w-12 transition-colors duration-200 ${
-        active ? "text-bysis-blue" : "text-bysis-muted"
-      }`}
-    >
-      <span className="relative">
-        {children}
-        {!!badge && badge > 0 && (
-          <span className="absolute -top-1.5 -right-2 h-4 min-w-4 px-1 rounded-full bg-bysis-blue text-white text-[10px] font-bold grid place-items-center">
-            {badge}
-          </span>
-        )}
-      </span>
-      <span className="text-[10px] font-medium">{label}</span>
-      {active && <span className="absolute -bottom-2 h-1 w-1 rounded-full bg-bysis-blue" />}
-    </button>
   );
 }
