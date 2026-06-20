@@ -1,8 +1,12 @@
 // bysis bottom navigation — 5 actions: Vision, Compte, Panier, Menu, Bysis AI
-import { Eye, User, ShoppingBag, Menu, Sparkles } from "lucide-react";
+// Bottom nav STAYS visible while AI/Vision drawers are open; active tab is highlighted.
+// Vision & AI buttons toggle their drawer (same button opens/closes).
+import { Eye, User, ShoppingBag, Menu } from "lucide-react";
+import { LOGOS } from "@/data";
 
 type Props = {
   cartCount: number;
+  active: "vision" | "ai" | null;
   onVision: () => void;
   onAI: () => void;
   onAccount: () => void;
@@ -10,29 +14,59 @@ type Props = {
   onCart: () => void;
 };
 
-export default function BottomNav({ cartCount, onVision, onAI, onAccount, onMenu, onCart }: Props) {
+export default function BottomNav({ cartCount, active, onVision, onAI, onAccount, onMenu, onCart }: Props) {
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 mx-auto max-w-[480px]">
-      <div className="m-3 rounded-[26px] bg-white/90 backdrop-blur-xl border border-bysis-line soft-shadow flex items-center justify-around h-[64px] px-2">
-        <NavBtn label="Vision" onClick={onVision}><Eye className="h-[22px] w-[22px]" /></NavBtn>
-        <NavBtn label="Compte" onClick={onAccount}><User className="h-[22px] w-[22px]" /></NavBtn>
-        <NavBtn label="Panier" onClick={onCart} badge={cartCount}><ShoppingBag className="h-[22px] w-[22px]" /></NavBtn>
-        <NavBtn label="Menu" onClick={onMenu}><Menu className="h-[22px] w-[22px]" /></NavBtn>
+    <nav className="fixed bottom-0 inset-x-0 z-[60] mx-auto max-w-[480px]">
+      <div className="m-3 rounded-[26px] bg-white/95 backdrop-blur-xl border border-bysis-line soft-shadow flex items-center justify-around h-[64px] px-2">
+        <NavBtn label="Vision" onClick={onVision} active={active === "vision"}>
+          <Eye className="h-[22px] w-[22px]" />
+        </NavBtn>
+        <NavBtn label="Compte" onClick={onAccount}>
+          <User className="h-[22px] w-[22px]" />
+        </NavBtn>
+        <NavBtn label="Panier" onClick={onCart} badge={cartCount}>
+          <ShoppingBag className="h-[22px] w-[22px]" />
+        </NavBtn>
+        <NavBtn label="Menu" onClick={onMenu}>
+          <Menu className="h-[22px] w-[22px]" />
+        </NavBtn>
         <button
           onClick={onAI}
           aria-label="Bysis AI"
-          className="relative -mt-7 h-[54px] w-[54px] rounded-full bg-bysis-blue text-white grid place-items-center soft-shadow press"
+          aria-pressed={active === "ai"}
+          className={`relative -mt-7 h-[54px] w-[54px] rounded-full grid place-items-center soft-shadow press transition-all duration-200 ${
+            active === "ai" ? "bg-bysis-ink ring-4 ring-bysis-blue/30 scale-105" : "bg-bysis-blue"
+          }`}
         >
-          <Sparkles className="h-[24px] w-[24px]" />
+          <img src={LOGOS.ai} alt="" className="h-[30px] w-[30px] object-contain" />
         </button>
       </div>
     </nav>
   );
 }
 
-function NavBtn({ label, children, onClick, badge }: { label: string; children: React.ReactNode; onClick: () => void; badge?: number }) {
+function NavBtn({
+  label,
+  children,
+  onClick,
+  badge,
+  active,
+}: {
+  label: string;
+  children: React.ReactNode;
+  onClick: () => void;
+  badge?: number;
+  active?: boolean;
+}) {
   return (
-    <button onClick={onClick} aria-label={label} className="relative flex flex-col items-center gap-0.5 text-bysis-muted press w-12">
+    <button
+      onClick={onClick}
+      aria-label={label}
+      aria-pressed={active}
+      className={`relative flex flex-col items-center gap-0.5 press w-12 transition-colors duration-200 ${
+        active ? "text-bysis-blue" : "text-bysis-muted"
+      }`}
+    >
       <span className="relative">
         {children}
         {!!badge && badge > 0 && (
@@ -42,6 +76,7 @@ function NavBtn({ label, children, onClick, badge }: { label: string; children: 
         )}
       </span>
       <span className="text-[10px] font-medium">{label}</span>
+      {active && <span className="absolute -bottom-2 h-1 w-1 rounded-full bg-bysis-blue" />}
     </button>
   );
 }

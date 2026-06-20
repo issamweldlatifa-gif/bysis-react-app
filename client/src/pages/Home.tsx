@@ -19,8 +19,11 @@ import { Play, ChevronRight, ArrowRight, ShoppingBag, User, Heart, Settings, Pac
 export default function Home() {
   const [cat, setCat] = useState(CATEGORIES[0]);
   const [cart, setCart] = useState<Product[]>([]);
-  const [vision, setVision] = useState(false);
-  const [ai, setAI] = useState(false);
+  // Single source of truth for the two side drawers — mutually exclusive, toggle on same button.
+  const [panel, setPanel] = useState<"vision" | "ai" | null>(null);
+  const toggleVision = () => setPanel((p) => (p === "vision" ? null : "vision"));
+  const toggleAI = () => setPanel((p) => (p === "ai" ? null : "ai"));
+  const closePanel = () => setPanel(null);
   const [account, setAccount] = useState(false);
   const [menu, setMenu] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -199,15 +202,16 @@ export default function Home() {
 
       <BottomNav
         cartCount={cart.length}
-        onVision={() => setVision(true)}
-        onAI={() => setAI(true)}
+        active={panel}
+        onVision={toggleVision}
+        onAI={toggleAI}
         onAccount={() => setAccount(true)}
         onMenu={() => setMenu(true)}
         onCart={() => setCartOpen(true)}
       />
 
-      <VisionDrawer open={vision} onClose={() => setVision(false)} />
-      <AIDrawer open={ai} onClose={() => setAI(false)} />
+      <VisionDrawer open={panel === "vision"} onClose={closePanel} />
+      <AIDrawer open={panel === "ai"} onClose={closePanel} />
 
       <SimpleDrawer open={account} onClose={() => setAccount(false)} title="Mon compte">
         <div className="space-y-2">
