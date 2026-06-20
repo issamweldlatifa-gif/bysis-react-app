@@ -112,7 +112,7 @@ export function VisionDrawer({
 
       <div
         className="flex-1 overflow-y-auto no-scrollbar"
-        style={{ padding: "28px 20px 128px" }}
+        style={{ padding: "28px 20px 130px" }}
       >
         {/* hero card */}
         <div
@@ -282,7 +282,7 @@ export function AIDrawer({
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto no-scrollbar"
-        style={{ padding: "18px 0 184px" }}
+        style={{ padding: "18px 0 180px" }}
       >
         {/* welcome paragraph (always shown first, exactly like reference) */}
         <p
@@ -330,7 +330,7 @@ export function AIDrawer({
       <div
         className="fixed inset-x-0 mx-auto w-full max-w-[480px]"
         style={{
-          bottom: kb ? 0 : 88,
+          bottom: kb ? 0 : 82,
           zIndex: 6500,
           opacity: open ? 1 : 0,
           visibility: open ? "visible" : "hidden",
