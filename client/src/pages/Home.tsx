@@ -17,6 +17,10 @@ import SimpleDrawer from "@/components/bysis/SimpleDrawer";
 import { Play, ChevronRight, ArrowRight, ShoppingBag, User, Heart, Settings, Package, MapPin } from "lucide-react";
 
 export default function Home() {
+  // The userAuth hooks provides authentication state
+  // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
+  let { user, loading, error, isAuthenticated, logout } = useAuth();
+
   const [cat, setCat] = useState(CATEGORIES[0]);
   const [cart, setCart] = useState<Product[]>([]);
   // Single source of truth for the two side drawers — mutually exclusive, toggle on same button.
