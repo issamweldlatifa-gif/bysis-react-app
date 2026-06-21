@@ -89,6 +89,7 @@ export function VisionDrawer({
 }) {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const saveLensSearchMutation = trpc.vision.saveLensSearch.useMutation();
   const searchProductsMutation = trpc.vision.searchByImage.useMutation();
@@ -122,6 +123,7 @@ export function VisionDrawer({
       });
       toast.dismiss();
       toast.success("Image analysée avec succès");
+      setSearchResults(result);
       // Save to history
       await saveLensSearchMutation.mutateAsync({
         queryType: "image",
@@ -228,7 +230,13 @@ export function VisionDrawer({
             </button>
             <button
               type="button"
-              onClick={handleScanArticle}
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e: any) => handleImageSelect(e.target.files[0]);
+                input.click();
+              }}
               className="press"
               style={{
                 minHeight: 54,
@@ -244,6 +252,26 @@ export function VisionDrawer({
             </button>
           </div>
         </div>
+
+        {/* Search Results */}
+        {searchResults && (
+          <div style={{ marginTop: 22, padding: 16, background: "#f5f7fa", borderRadius: 20 }}>
+            <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Analyse IA:</p>
+            <p style={{ fontSize: 13, color: "#666", marginBottom: 12 }}>{searchResults.aiAnalysis}</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#0064e0" }}>Prix estimé: {searchResults.estimatedPrice}</p>
+            <p style={{ fontSize: 12, color: "#999", marginTop: 8 }}>Mots-clés: {searchResults.keywords?.join(", ") || "N/A"}</p>
+            {searchResults.products && searchResults.products.length > 0 && (
+              <div style={{ marginTop: 12 }}>
+                <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 8 }}>Produits similaires:</p>
+                {searchResults.products.slice(0, 3).map((p: any, i: number) => (
+                  <div key={i} style={{ fontSize: 11, padding: 6, background: "#fff", borderRadius: 8, marginBottom: 4 }}>
+                    {p.name} - {p.price}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* suggestions */}
         <div className="grid gap-3" style={{ marginTop: 26 }}>

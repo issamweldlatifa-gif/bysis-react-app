@@ -1142,7 +1142,7 @@ IMPORTANT: Always return the LARGEST price visible. price_in_eur must be already
       }),
     newOrdersCount: customAdminProcedure.query(async () => {
       const all = await getAllOrders();
-      return { count: all.filter(o => o.status === "new").length };
+      return { count: all.filter((o: any) => o.status === "new").length };
     }),
   }),
 
@@ -1471,7 +1471,7 @@ IMPORTANT: Always return the LARGEST price visible. price_in_eur must be already
       .mutation(async ({ input }) => {
         await updateAiOrderStatus(input.id, 'confirmed', input.adminNote);
         const orders = await getAllAiOrders();
-        const order = orders.find(o => o.id === input.id);
+        const order = orders.find((o: any) => o.id === input.id);
         if (order) {
           await sendOrderConfirmationToAdmin({
             customerName: order.customerName || '',
@@ -1503,7 +1503,7 @@ IMPORTANT: Always return the LARGEST price visible. price_in_eur must be already
       .mutation(async ({ input }) => {
         await updateAiOrderStatus(input.id, 'cancelled', input.reason);
         const orders = await getAllAiOrders();
-        const order = orders.find(o => o.id === input.id);
+        const order = orders.find((o: any) => o.id === input.id);
         if (order) {
           await sendStatusUpdateToAdmin({
             customerName: order.customerName || '',
@@ -1529,7 +1529,7 @@ IMPORTANT: Always return the LARGEST price visible. price_in_eur must be already
       .mutation(async ({ input }) => {
         await updateAiOrderStatus(input.id, input.status as any);
         const orders = await getAllAiOrders();
-        const order = orders.find(o => o.id === input.id);
+        const order = orders.find((o: any) => o.id === input.id);
         if (order) {
           await sendStatusUpdateToAdmin({
             customerName: order.customerName || '',
@@ -1566,7 +1566,7 @@ IMPORTANT: Always return the LARGEST price visible. price_in_eur must be already
       .mutation(async ({ input }) => {
         await updateAiOrderStatus(input.id, input.status, input.adminNotes);
         // Notify admin (and optionally customer)
-        const order = await getAllAiOrders().then(orders => orders.find(o => o.id === input.id));
+        const order = await getAllAiOrders().then((orders: any[]) => orders.find((o: any) => o.id === input.id));
         if (order) {
           await sendStatusUpdateToAdmin({
             customerName: order.customerName || '',
