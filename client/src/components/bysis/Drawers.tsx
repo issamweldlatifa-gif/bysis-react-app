@@ -9,6 +9,8 @@
 import { useEffect, useRef, useState } from "react";
 import { LOGOS } from "@/data";
 import { X } from "lucide-react";
+import { trpc } from "@/lib/trpc";
+import { toast } from "sonner";
 
 // Full-screen panel that slides up from the bottom, exactly like the reference.
 function FullPanel({
@@ -85,6 +87,55 @@ export function VisionDrawer({
   open: boolean;
   onClose: () => void;
 }) {
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const saveLensSearchMutation = trpc.vision.saveLensSearch.useMutation();
+  const searchProductsMutation = trpc.vision.searchByImage.useMutation();
+
+  const handleImageSelect = (file: File) => {
+    setSelectedImage(file);
+    const reader = new FileReader();
+    reader.onload = (e) => setPreviewUrl(e.target?.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleScanArticle = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    handleImageSelect(file);
+  };
+
+  const handleAnalyzeImage = async () => {
+    if (!selectedImage || !previewUrl) {
+      toast.error("Veuillez sélectionner une image");
+      return;
+    }
+    try {
+      toast.loading("Analyse de l'image en cours...");
+      const result = await searchProductsMutation.mutateAsync({
+        imageBase64: previewUrl,
+      });
+      toast.dismiss();
+      toast.success("Image analysée avec succès");
+      // Save to history
+      await saveLensSearchMutation.mutateAsync({
+        queryType: "image",
+        imageUrl: previewUrl,
+        aiAnalysis: result.aiAnalysis,
+        resultCount: result.products?.length || 0,
+      });
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Erreur lors de l'analyse de l'image");
+      console.error(error);
+    }
+  };
+
   const suggestions = [
     "Rechercher un produit similaire",
     "Identifier une marque",
@@ -152,8 +203,16 @@ export function VisionDrawer({
           </p>
 
           <div className="grid grid-cols-1 gap-3" style={{ marginTop: 22 }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
             <button
               type="button"
+              onClick={handleScanArticle}
               className="press"
               style={{
                 minHeight: 54,
@@ -169,6 +228,7 @@ export function VisionDrawer({
             </button>
             <button
               type="button"
+              onClick={handleScanArticle}
               className="press"
               style={{
                 minHeight: 54,

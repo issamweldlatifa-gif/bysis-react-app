@@ -2122,6 +2122,78 @@ Retourne UNIQUEMENT du JSON valide.`,
       .query(async ({ input }) => getArTryOnResult(input.id)),
   }),
 
+  // ===== Vision (Image Search) =====
+  vision: router({
+    searchByImage: publicProcedure
+      .input(z.object({ imageBase64: z.string() }))
+      .mutation(async ({ input }) => {
+        try {
+          const response = await invokeLLM({
+            messages: [
+              {
+                role: "system",
+                content: "Analyze the clothing item. Provide: 1) Item type, 2) Color, 3) Style, 4) Estimated price in TND, 5) Keywords.",
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "image_url",
+                    image_url: { url: input.imageBase64, detail: "high" },
+                  },
+                  {
+                    type: "text",
+                    text: "Analyze this clothing item.",
+                  },
+                ],
+              },
+            ],
+          });
+          const aiAnalysisContent = response.choices[0]?.message.content;
+          const aiAnalysis = typeof aiAnalysisContent === "string" ? aiAnalysisContent : "";
+          const keywordStr = typeof aiAnalysis === "string" ? (aiAnalysis.match(/keywords?:\s*([^\n]+)/i)?.[1] || "") : "";
+          const keywords = keywordStr.split(",").map(k => k.trim()).filter(Boolean);
+          const priceMatch = typeof aiAnalysis === "string" ? aiAnalysis.match(/price[^:]*:\s*([0-9]+\s*-?\s*[0-9]*\s*TND)/i) : null;
+          const estimatedPrice = priceMatch ? priceMatch[1] : "N/A";
+          const products = await searchProductsByKeywords(keywords);
+          return { aiAnalysis, keywords, estimatedPrice, products: products.slice(0, 10) };
+        } catch (error) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to analyze image" });
+        }
+      }),
+
+    saveLensSearch: publicProcedure
+      .input(z.object({
+        queryType: z.enum(["image", "text", "barcode"]),
+        imageUrl: z.string().optional(),
+        aiAnalysis: z.string().optional(),
+        resultCount: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          await saveLensSearch({
+            queryType: input.queryType,
+            imageUrl: input.imageUrl,
+            resultCount: input.resultCount,
+          });
+          return { success: true };
+        } catch (error) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to save search" });
+        }
+      }),
+
+    getHistory: publicProcedure
+      .query(async () => {
+      try {
+        const db = await getDb();
+        if (!db) return [];
+        return await getLensHistory();
+      } catch (error) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch history" });
+      }
+    }),
+  }),
+
   // ===== Push Notifications =====
   push: router({
     // Subscribe to push notifications
